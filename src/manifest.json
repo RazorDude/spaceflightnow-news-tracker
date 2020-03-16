@@ -1,21 +1,21 @@
 {
-	"name": "Teslarati News Tracker",
+	"name": "Space Flight Now News Tracker",
 	"version": "1.0",
-	"description": "Teslarati News Tracker",
+	"description": "Space Flight Now News Tracker",
 	"permissions": [
 		"notifications",
 		"cookies",
-		"https://www.teslarati.com/latest-tesla-news"
+		"https://spaceflightnow.com/category/news-archive"
 	],
 	"background": {
 		"scripts": ["background.js"],
 		"persistent": true
 	},
 	"browser_action": {
-		"default_icon": "teslaratiIcon16.png",
+		"default_icon": "rocketIcon16.png",
 		"default_popup": "popup.html",
-		"icons": {"16": "teslaratiIcon16.png"}
+		"icons": {"16": "rocketIcon16.png"}
 	},
-	"icons": {"48": "teslaratiIcon48.png"},
+	"icons": {"48": "rocketIcon48.png"},
 	"manifest_version": 2
 }

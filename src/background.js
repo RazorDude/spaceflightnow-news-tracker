@@ -2,48 +2,30 @@
 const createNotification = (data) => new Promise((resolve, reject) => chrome.notifications.create('', data, () => resolve()))
 const getCookie = (url, name) => new Promise((resolve, reject) => chrome.cookies.get({ url, name }, (cookie) => resolve(cookie)))
 const getPostData = (post) => {
-  const linkElement = post.getElementsByTagName('a')[0]
-  const linkElementChildNodes = linkElement.getElementsByClassName('archive-list-img')[0].childNodes
-  const textContainerChildNodes = post.getElementsByClassName('archive-list-text')[0].childNodes
-  let imageLink = ''
-  let text = ''
-  for (const i in linkElementChildNodes) {
-    const node = linkElementChildNodes[i]
-    if (node.tagName && (node.tagName.toLowerCase() === 'img')) {
-      imageLink = node.src
-      break
-    }
-  }
-  for (const i in textContainerChildNodes) {
-    const node = textContainerChildNodes[i]
-    if (node.tagName && (node.tagName.toLowerCase() === 'p')) {
-      text = node.innerText
-      break
-    }
-  }
+  const linkElement = post.getElementsByClassName('mh-loop-thumb')[0].getElementsByTagName('a')[0]
   return {
-    imageLink,
+    imageLink: linkElement.getElementsByTagName('img')[0].attributes['data-lazy-src'].value,
     link: linkElement.href,
-    title: linkElement.title,
-    text
+    title: post.getElementsByClassName('mh-loop-header')[0].getElementsByTagName('a')[0].innerText,
+    text: post.getElementsByClassName('mh-excerpt')[0].getElementsByTagName('p')[0].innerText
   }
 }
 const setBadgeText = (text) => new Promise((resolve, reject) => chrome.browserAction.setBadgeText({ text }, () => resolve(true)))
 const setCookie = (url, name, value) => new Promise((resolve, reject) => chrome.cookies.set({ url, name, value }, () => resolve(true)))
 
 const getData = async () => {
-  let currentNews = await getCookie('https://www.teslarati.com/latest-tesla-news', 'latestNews')
+  let currentNews = await getCookie('https://spaceflightnow.com/category/news-archive', 'latestNews')
   if (!currentNews) {
     currentNews = '{"items": [], "new": 0, "errors": []}'
-    await setCookie('https://www.teslarati.com/latest-tesla-news', 'latestNews', currentNews)
+    await setCookie('https://spaceflightnow.com/category/news-archive', 'latestNews', currentNews)
   } else {
     currentNews = currentNews.value
   }
   currentNews = JSON.parse(currentNews)
-  const response = await fetch(`https://www.teslarati.com/latest-tesla-news?_=${(new Date()).valueOf()}`)
+  const response = await fetch(`https://spaceflightnow.com/category/news-archive?_=${(new Date()).valueOf()}`)
   let el = document.createElement('html')
   el.innerHTML = await response.text()
-  const posts = el.getElementsByClassName('infinite-post')
+  const posts = el.getElementsByTagName('article')
   if (posts.length) {
     if (!currentNews.items.length) {
       for (let i = 0; i < 8; i++) {
@@ -92,14 +74,15 @@ const getData = async () => {
     await createNotification({
       type: 'basic',
       iconUrl: lastNews.imageLink,
-      title: 'New Teslarati news article',
+      title: 'New Space Flight Now news article',
       message: lastNews.title,
       contextMessage: currentNews.new > 1 ? `+ ${currentNews.new - 1} other notifications` : ''
     })
   } else {
     await setBadgeText('')
   }
-  await setCookie('https://www.teslarati.com/latest-tesla-news', 'latestNews', JSON.stringify(currentNews))
+  console.log(currentNews)
+  await setCookie('https://spaceflightnow.com/category/news-archive', 'latestNews', JSON.stringify(currentNews))
   return true
 }
 
