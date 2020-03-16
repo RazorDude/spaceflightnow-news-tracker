@@ -81,7 +81,6 @@ const getData = async () => {
   } else {
     await setBadgeText('')
   }
-  console.log(currentNews)
   await setCookie('https://spaceflightnow.com/category/news-archive', 'latestNews', JSON.stringify(currentNews))
   return true
 }
